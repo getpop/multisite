@@ -1,0 +1,69 @@
+<?php
+namespace PoP\Multisite\FieldResolvers;
+
+use PoP\API\TypeResolvers\RootTypeResolver;
+use PoP\ComponentModel\Schema\SchemaDefinition;
+use PoP\ComponentModel\Schema\TypeCastingHelpers;
+use PoP\Multisite\TypeResolvers\SiteTypeResolver;
+use PoP\Translation\Facades\TranslationAPIFacade;
+use PoP\ComponentModel\TypeResolvers\TypeResolverInterface;
+use PoP\ComponentModel\FieldResolvers\AbstractDBDataFieldResolver;
+
+class RootFieldResolver extends AbstractDBDataFieldResolver
+{
+    public static function getClassesToAttachTo(): array
+    {
+        return array(RootTypeResolver::class);
+    }
+
+    public static function getFieldNamesToResolve(): array
+    {
+        return [
+            'sites',
+            'site',
+        ];
+    }
+
+    public function getSchemaFieldType(TypeResolverInterface $typeResolver, string $fieldName): ?string
+    {
+        $types = [
+            'sites' => TypeCastingHelpers::makeArray(SchemaDefinition::TYPE_ID),
+            'site' => SchemaDefinition::TYPE_ID,
+        ];
+        return $types[$fieldName] ?? parent::getSchemaFieldType($typeResolver, $fieldName);
+    }
+
+    public function getSchemaFieldDescription(TypeResolverInterface $typeResolver, string $fieldName): ?string
+    {
+        $translationAPI = TranslationAPIFacade::getInstance();
+        $descriptions = [
+            'sites' => $translationAPI->__('All websites', 'multisite'),
+            'site' => $translationAPI->__('This website', 'multisite'),
+        ];
+        return $descriptions[$fieldName] ?? parent::getSchemaFieldDescription($typeResolver, $fieldName);
+    }
+
+    public function resolveValue(TypeResolverInterface $typeResolver, $resultItem, string $fieldName, array $fieldArgs = [], ?array $variables = null, ?array $expressions = null, array $options = [])
+    {
+        $root = $resultItem;
+        switch ($fieldName) {
+            case 'sites':
+                return [$root->getSite()->getID()];
+            case 'site':
+                return $root->getSite()->getID();
+        }
+
+        return parent::resolveValue($typeResolver, $resultItem, $fieldName, $fieldArgs, $variables, $expressions, $options);
+    }
+
+    public function resolveFieldTypeResolverClass(TypeResolverInterface $typeResolver, string $fieldName, array $fieldArgs = []): ?string
+    {
+        switch ($fieldName) {
+            case 'sites':
+            case 'site':
+                return SiteTypeResolver::class;
+        }
+
+        return parent::resolveFieldTypeResolverClass($typeResolver, $fieldName, $fieldArgs);
+    }
+}
