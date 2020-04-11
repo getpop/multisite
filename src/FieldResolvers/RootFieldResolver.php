@@ -48,9 +48,11 @@ class RootFieldResolver extends AbstractDBDataFieldResolver
         $root = $resultItem;
         switch ($fieldName) {
             case 'sites':
-                return [$root->getSite()->getID()];
+                $site = SiteObjectFacade::getInstance();
+                return [$site->getID()];
             case 'site':
-                return $root->getSite()->getID();
+                $site = SiteObjectFacade::getInstance();
+                return $site->getID();
         }
 
         return parent::resolveValue($typeResolver, $resultItem, $fieldName, $fieldArgs, $variables, $expressions, $options);
