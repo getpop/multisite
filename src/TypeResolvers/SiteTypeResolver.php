@@ -31,4 +31,3 @@ class SiteTypeResolver extends AbstractTypeResolver
         return SiteTypeDataLoader::class;
     }
 }
-
