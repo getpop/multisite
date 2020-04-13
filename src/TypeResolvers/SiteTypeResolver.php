@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace PoP\Multisite\TypeResolvers;
 
 use PoP\Multisite\TypeDataLoaders\SiteTypeDataLoader;
