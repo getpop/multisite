@@ -1,2 +1,2 @@
 <?php
-\PoP\Multisite\Component::init();
+//\PoP\Multisite\Component::initialize();
