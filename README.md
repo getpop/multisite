@@ -25,7 +25,9 @@ composer require getpop/multisite
 Initialize the component:
 
 ``` php
-\PoP\Multisite\Component::initialize();
+\PoP\Root\ComponentLoader::initializeComponents([
+    \PoP\Multisite\Component::class,
+]);
 ```
 
 ## Standards
