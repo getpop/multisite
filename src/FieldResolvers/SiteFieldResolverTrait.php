@@ -8,8 +8,15 @@ use PoP\ComponentModel\TypeResolvers\TypeResolverInterface;
 
 trait SiteFieldResolverTrait
 {
-    public function resolveCanProcessResultItem(TypeResolverInterface $typeResolver, $resultItem, string $fieldName, array $fieldArgs = []): bool
-    {
+    /**
+     * @param array<string, mixed> $fieldArgs
+     */
+    public function resolveCanProcessResultItem(
+        TypeResolverInterface $typeResolver,
+        object $resultItem,
+        string $fieldName,
+        array $fieldArgs = []
+    ): bool {
         $cmsengineapi = \PoP\Engine\FunctionAPIFactory::getInstance();
         $site = $resultItem;
         // Only for the current site. For other sites must be implemented through a "multisite" package
