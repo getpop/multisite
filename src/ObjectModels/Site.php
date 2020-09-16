@@ -6,13 +6,15 @@ namespace PoP\Multisite\ObjectModels;
 
 class Site
 {
-    private $id;
-    private $domain;
-    private $host;
-    // private $name;
-    // private $description;
-    public function __construct(string $domain = ''/*, $name, $description = ''*/)
-    {
+    private string $id;
+    private string $domain;
+    private string $host;
+    // private string $name;
+    // private string $description;
+    public function __construct(
+        string $domain = ''
+        /*, $name, $description = ''*/
+    ) {
         if (!$domain) {
             $cmsengineapi = \PoP\Engine\FunctionAPIFactory::getInstance();
             $domain = $cmsengineapi->getHomeURL();
