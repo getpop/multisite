@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace PoP\Multisite\TypeDataLoaders;
+namespace PoP\Multisite\RelationalTypeDataLoaders\Object;
 
 use PoP\Multisite\ObjectFacades\SiteObjectFacade;
-use PoP\ComponentModel\TypeDataLoaders\AbstractTypeDataLoader;
+use PoP\ComponentModel\RelationalTypeDataLoaders\Object\AbstractObjectTypeDataLoader;
 
-class SiteTypeDataLoader extends AbstractTypeDataLoader
+class SiteTypeDataLoader extends AbstractObjectTypeDataLoader
 {
     public function getObjects(array $ids): array
     {
