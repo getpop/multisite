@@ -8,51 +8,41 @@ use PoP\ComponentModel\FieldResolvers\ObjectType\AbstractObjectTypeFieldResolver
 use PoP\ComponentModel\Schema\SchemaDefinition;
 use PoP\ComponentModel\Schema\SchemaTypeModifiers;
 use PoP\ComponentModel\TypeResolvers\ObjectType\ObjectTypeResolverInterface;
+use PoP\Engine\TypeResolvers\ObjectType\RootTypeResolver;
+use PoP\Multisite\ObjectFacades\SiteObjectFacade;
 use PoP\Multisite\TypeResolvers\ObjectType\SiteTypeResolver;
 
-class SiteFieldResolver extends AbstractObjectTypeFieldResolver
+class RootObjectTypeFieldResolver extends AbstractObjectTypeFieldResolver
 {
     public function getObjectTypeResolverClassesToAttachTo(): array
     {
         return [
-            SiteTypeResolver::class,
+            RootTypeResolver::class,
         ];
     }
 
     public function getFieldNamesToResolve(): array
     {
         return [
-            'domain',
-            'host',
+            'sites',
+            'site',
         ];
-    }
-
-    public function getSchemaFieldType(ObjectTypeResolverInterface $objectTypeResolver, string $fieldName): string
-    {
-        $types = [
-            'domain' => SchemaDefinition::TYPE_STRING,
-            'host' => SchemaDefinition::TYPE_STRING,
-        ];
-        return $types[$fieldName] ?? parent::getSchemaFieldType($objectTypeResolver, $fieldName);
     }
 
     public function getSchemaFieldTypeModifiers(ObjectTypeResolverInterface $objectTypeResolver, string $fieldName): ?int
     {
-        $nonNullableFieldNames = [
-            'domain',
-            'host',
-        ];
-        if (in_array($fieldName, $nonNullableFieldNames)) {
-            return SchemaTypeModifiers::NON_NULLABLE;
-        }
-        return parent::getSchemaFieldTypeModifiers($objectTypeResolver, $fieldName);
+        return match ($fieldName) {
+            'site' => SchemaTypeModifiers::NON_NULLABLE,
+            'sites' => SchemaTypeModifiers::NON_NULLABLE | SchemaTypeModifiers::IS_ARRAY,
+            default => parent::getSchemaFieldTypeModifiers($objectTypeResolver, $fieldName),
+        };
     }
 
     public function getSchemaFieldDescription(ObjectTypeResolverInterface $objectTypeResolver, string $fieldName): ?string
     {
         $descriptions = [
-            'domain' => $this->translationAPI->__('The site\'s domain', ''),
-            'host' => $this->translationAPI->__('The site\'s host', ''),
+            'sites' => $this->translationAPI->__('All websites', 'multisite'),
+            'site' => $this->translationAPI->__('This website', 'multisite'),
         ];
         return $descriptions[$fieldName] ?? parent::getSchemaFieldDescription($objectTypeResolver, $fieldName);
     }
@@ -72,14 +62,27 @@ class SiteFieldResolver extends AbstractObjectTypeFieldResolver
         ?array $expressions = null,
         array $options = []
     ): mixed {
-        $site = $resultItem;
+        $root = $resultItem;
         switch ($fieldName) {
-            case 'domain':
-                return $site->getDomain();
-            case 'host':
-                return $site->getHost();
+            case 'sites':
+                $site = SiteObjectFacade::getInstance();
+                return [$site->getID()];
+            case 'site':
+                $site = SiteObjectFacade::getInstance();
+                return $site->getID();
         }
 
         return parent::resolveValue($objectTypeResolver, $resultItem, $fieldName, $fieldArgs, $variables, $expressions, $options);
+    }
+
+    public function getFieldTypeResolverClass(ObjectTypeResolverInterface $objectTypeResolver, string $fieldName): ?string
+    {
+        switch ($fieldName) {
+            case 'sites':
+            case 'site':
+                return SiteTypeResolver::class;
+        }
+
+        return parent::getFieldTypeResolverClass($objectTypeResolver, $fieldName);
     }
 }
